@@ -23,19 +23,19 @@ key_timings = {}
 def calc_velocity(key_down_time, previous_key_down_time, previous_key_up_time):
     # 押下速度（前回KeyUpからの時間差）
     dt_press = key_down_time - previous_key_up_time
-    dt_press = max(20, min(dt_press, 200))  # clamp 20〜200ms
-    p = 1.0 - (dt_press - 20) / (200 - 20)
+    dt_press = max(50, min(dt_press, 300))  # clamp 50〜300ms（範囲を広げる）
+    p = 1.0 - (dt_press - 50) / (300 - 50)
 
     # 連打間隔（前回KeyDownからの時間差）
     dt_repeat = key_down_time - previous_key_down_time
-    dt_repeat = max(40, min(dt_repeat, 300))  # clamp 40〜300ms
-    r = 1.0 - (dt_repeat - 40) / (300 - 40)
+    dt_repeat = max(100, min(dt_repeat, 500))  # clamp 100〜500ms（範囲を広げる）
+    r = 1.0 - (dt_repeat - 100) / (500 - 100)
 
     # ハイブリッド合成（押下速度重視）
     energy = 0.7 * p + 0.3 * r
 
-    # Velocityに変換（40〜127）
-    velocity = int(40 + energy * 87)
+    # Velocityに変換（60〜110）範囲を狭める
+    velocity = int(60 + energy * 50)
     return velocity
 
 class Api:
