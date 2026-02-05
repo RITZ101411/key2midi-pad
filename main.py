@@ -44,6 +44,17 @@ def main():
     root = tk.Tk()
     root.title('fk2-hid-midi')
     root.configure(bg='#212121')
+    root.resizable(False, False)
+    
+    # Top buttons
+    for i in range(4):
+        btn_container = tk.Frame(root, bg='#212121')
+        btn_container.grid(row=0, column=i, padx=12.5, pady=12.5)
+        
+        btn = tk.Frame(btn_container, bg='#1a1a1a', highlightbackground="#e942b1",
+                      highlightthickness=3.5, relief='solid', width=120, height=60)
+        btn.pack()
+        btn.pack_propagate(False)
     
     for i, key in enumerate(KEYS):
         row, col = divmod(i, 4)
@@ -51,7 +62,7 @@ def main():
         label_bg = '#212121'
         
         container = tk.Frame(root, bg="#212121")
-        container.grid(row=row, column=col, padx=12.5, pady=2.5)
+        container.grid(row=row+1, column=col, padx=12.5, pady=(2.5, 12.5 if row == 3 else 2.5))
         
         pad = tk.Frame(container, bg='#1a1a1a', highlightbackground=color, 
                       highlightthickness=2, relief='solid', width=120, height=120)
