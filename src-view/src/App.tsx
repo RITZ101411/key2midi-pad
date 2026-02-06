@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 
 function App() {
   const [activePads, setActivePads] = useState<Map<number, number>>(new Map());
+  const [alwaysOnTop, setAlwaysOnTop] = useState(false);
 
   useEffect(() => {
     const handlePadPress = (e: CustomEvent) => {
@@ -43,9 +44,31 @@ function App() {
     };
   }, []);
 
+  const toggleAlwaysOnTop = async () => {
+    const newState = !alwaysOnTop;
+    setAlwaysOnTop(newState);
+    try {
+      await (window as any).pywebview.api.set_always_on_top(newState);
+    } catch (e) {
+      console.error('Failed to set always on top:', e);
+    }
+  };
+
   return (
     <div className="p-4 flex flex-col items-center">
-      <div className="text-gray-500 text-xs mb-4">Keyboard input only when window is focused</div>
+      <div className="flex gap-4 items-center mb-4">
+        <div className="text-gray-500 text-xs">Keyboard input only when focused</div>
+        <button
+          onClick={toggleAlwaysOnTop}
+          className={`px-3 py-1 rounded text-xs ${
+            alwaysOnTop 
+              ? 'bg-blue-600 hover:bg-blue-700' 
+              : 'bg-gray-700 hover:bg-gray-600'
+          } text-white`}
+        >
+          {alwaysOnTop ? '📌 Always on Top' : 'Pin Window'}
+        </button>
+      </div>
       <div className="grid grid-cols-4 gap-x-4 gap-y-1">
         {Array.from({ length: 16 }, (_, i) => (
           <DrumPad 

@@ -46,6 +46,12 @@ class Api:
         print(f'Window focus: {focused}')
         return True
     
+    def set_always_on_top(self, on_top):
+        if window:
+            window.on_top = on_top
+            print(f'Always on top: {on_top}')
+        return True
+    
     def pad_press(self, index):
         if index < len(KEYS):
             key = KEYS[index]
