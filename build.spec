@@ -60,7 +60,7 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='key2midi-pad.app',
-    icon=None,
+    icon='icon.icns',
     bundle_identifier='com.key2midi.pad',
     info_plist={
         'NSHighResolutionCapable': 'True',
