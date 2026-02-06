@@ -20,16 +20,32 @@ function App() {
       });
     };
 
+    const handleFocus = () => {
+      (window as any).pywebview?.api?.set_window_focus(true);
+    };
+
+    const handleBlur = () => {
+      (window as any).pywebview?.api?.set_window_focus(false);
+    };
+
     window.addEventListener('padPress', handlePadPress as EventListener);
     window.addEventListener('padRelease', handlePadRelease as EventListener);
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    
+    handleFocus();
+
     return () => {
       window.removeEventListener('padPress', handlePadPress as EventListener);
       window.removeEventListener('padRelease', handlePadRelease as EventListener);
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
     };
   }, []);
 
   return (
-    <div className="p-4 flex justify-center">
+    <div className="p-4 flex flex-col items-center">
+      <div className="text-gray-500 text-xs mb-4">Keyboard input only when window is focused</div>
       <div className="grid grid-cols-4 gap-x-4 gap-y-1">
         {Array.from({ length: 16 }, (_, i) => (
           <DrumPad 

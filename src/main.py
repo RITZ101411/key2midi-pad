@@ -5,8 +5,6 @@ import os
 import json
 import time
 
-outport = mido.open_output('fk2-midi', virtual=True)
-
 # Load config
 config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
 with open(config_path, 'r') as f:
@@ -16,6 +14,9 @@ KEY_TO_NOTE = {pad['key']: pad['note'] for pad in config['pads']}
 KEYS = [pad['key'] for pad in config['pads']]
 
 window = None
+outport = None
+listener = None
+window_focused = False
 
 # タイミング記録用
 key_timings = {}
@@ -39,6 +40,12 @@ def calc_velocity(key_down_time, previous_key_down_time, previous_key_up_time):
     return velocity
 
 class Api:
+    def set_window_focus(self, focused):
+        global window_focused
+        window_focused = focused
+        print(f'Window focus: {focused}')
+        return True
+    
     def pad_press(self, index):
         if index < len(KEYS):
             key = KEYS[index]
@@ -86,6 +93,8 @@ class Api:
                         pass
 
 def on_press(key):
+    if not window_focused:
+        return
     try:
         note = KEY_TO_NOTE.get(key.char)
         if note:
@@ -117,6 +126,8 @@ def on_press(key):
         pass
 
 def on_release(key):
+    if not window_focused:
+        return
     try:
         note = KEY_TO_NOTE.get(key.char)
         if note:
@@ -136,13 +147,26 @@ def on_release(key):
         pass
 
 def main():
-    global window
+    global window, outport
+    
+    # デフォルトデバイスを開く
+    try:
+        outport = mido.open_output('fk2-midi', virtual=True)
+        print(f'Default MIDI device: fk2-midi (virtual)')
+    except:
+        outputs = mido.get_output_names()
+        if outputs:
+            outport = mido.open_output(outputs[0])
+            print(f'Default MIDI device: {outputs[0]}')
+        else:
+            print('No MIDI devices available')
+    
     listener = keyboard.Listener(on_press=on_press, on_release=on_release)
     listener.start()
     
     html_path = os.path.abspath(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'dist', 'index.html'))
     print(f"Loading HTML from: {html_path}")
-    window = webview.create_window('fk2-hid-midi', url=f'file://{html_path}', width=500, height=550, resizable=False, js_api=Api())
+    window = webview.create_window('fk2-hid-midi', url=f'file://{html_path}', width=500, height=600, resizable=False, js_api=Api())
     webview.start()
 
 if __name__ == "__main__":
