@@ -3,7 +3,6 @@ import mido
 import webview
 import os
 import json
-import time
 
 # Load config
 config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
@@ -12,32 +11,12 @@ with open(config_path, 'r') as f:
 
 KEY_TO_NOTE = {pad['key']: pad['note'] for pad in config['pads']}
 KEYS = [pad['key'] for pad in config['pads']]
+VELOCITY = config.get('velocity', 80)
 
 window = None
 outport = None
 listener = None
 window_focused = False
-
-# タイミング記録用
-key_timings = {}
-
-def calc_velocity(key_down_time, previous_key_down_time, previous_key_up_time):
-    # 押下速度（前回KeyUpからの時間差）
-    dt_press = key_down_time - previous_key_up_time
-    dt_press = max(50, min(dt_press, 300))  # clamp 50〜300ms（範囲を広げる）
-    p = 1.0 - (dt_press - 50) / (300 - 50)
-
-    # 連打間隔（前回KeyDownからの時間差）
-    dt_repeat = key_down_time - previous_key_down_time
-    dt_repeat = max(100, min(dt_repeat, 500))  # clamp 100〜500ms（範囲を広げる）
-    r = 1.0 - (dt_repeat - 100) / (500 - 100)
-
-    # ハイブリッド合成（押下速度重視）
-    energy = 0.7 * p + 0.3 * r
-
-    # Velocityに変換（60〜110）範囲を狭める
-    velocity = int(60 + energy * 50)
-    return velocity
 
 class Api:
     def set_window_focus(self, focused):
@@ -52,32 +31,33 @@ class Api:
             print(f'Always on top: {on_top}')
         return True
     
+    def get_config(self):
+        return config
+    
+    def save_config(self, new_config):
+        global config, KEY_TO_NOTE, KEYS, VELOCITY
+        config = new_config
+        KEY_TO_NOTE = {pad['key']: pad['note'] for pad in config['pads']}
+        KEYS = [pad['key'] for pad in config['pads']]
+        VELOCITY = config.get('velocity', 80)
+        
+        config_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'config.json')
+        with open(config_path, 'w') as f:
+            json.dump(config, f, indent=2)
+        print('Config saved')
+        return True
+    
     def pad_press(self, index):
         if index < len(KEYS):
             key = KEYS[index]
             note = KEY_TO_NOTE.get(key)
             if note:
-                current_time = time.time() * 1000  # ms
-                
-                if key not in key_timings:
-                    key_timings[key] = {'down': 0, 'up': 0}
-                
-                prev_down = key_timings[key]['down']
-                prev_up = key_timings[key]['up']
-                
-                if prev_down == 0:
-                    velocity = 64
-                else:
-                    velocity = calc_velocity(current_time, prev_down, prev_up)
-                
-                key_timings[key]['down'] = current_time
-                
-                msg = mido.Message('note_on', note=note, velocity=velocity, channel=0)
+                msg = mido.Message('note_on', note=note, velocity=VELOCITY, channel=0)
                 outport.send(msg)
                 print(f'Sent: {msg}')
                 if window:
                     try:
-                        window.evaluate_js(f"window.dispatchEvent(new CustomEvent('padPress', {{detail: {{index: {index}, velocity: {velocity}}}}}))")
+                        window.evaluate_js(f"window.dispatchEvent(new CustomEvent('padPress', {{detail: {{index: {index}, velocity: {VELOCITY}}}}}))")
                     except:
                         pass
     
@@ -86,9 +66,6 @@ class Api:
             key = KEYS[index]
             note = KEY_TO_NOTE.get(key)
             if note:
-                current_time = time.time() * 1000  # ms
-                key_timings[key]['up'] = current_time
-                
                 msg = mido.Message('note_off', note=note, velocity=0, channel=0)
                 outport.send(msg)
                 print(f'Sent: {msg}')
@@ -104,28 +81,13 @@ def on_press(key):
     try:
         note = KEY_TO_NOTE.get(key.char)
         if note:
-            current_time = time.time() * 1000  # ms
-            
-            if key.char not in key_timings:
-                key_timings[key.char] = {'down': 0, 'up': 0}
-            
-            prev_down = key_timings[key.char]['down']
-            prev_up = key_timings[key.char]['up']
-            
-            if prev_down == 0:
-                velocity = 64
-            else:
-                velocity = calc_velocity(current_time, prev_down, prev_up)
-            
-            key_timings[key.char]['down'] = current_time
-            
-            msg = mido.Message('note_on', note=note, velocity=velocity, channel=0)
+            msg = mido.Message('note_on', note=note, velocity=VELOCITY, channel=0)
             outport.send(msg)
             print(f'Sent: {msg}')
             idx = KEYS.index(key.char)
             if window:
                 try:
-                    window.evaluate_js(f"window.dispatchEvent(new CustomEvent('padPress', {{detail: {{index: {idx}, velocity: {velocity}}}}}))")
+                    window.evaluate_js(f"window.dispatchEvent(new CustomEvent('padPress', {{detail: {{index: {idx}, velocity: {VELOCITY}}}}}))")
                 except:
                     pass
     except (AttributeError, ValueError):
@@ -137,9 +99,6 @@ def on_release(key):
     try:
         note = KEY_TO_NOTE.get(key.char)
         if note:
-            current_time = time.time() * 1000  # ms
-            key_timings[key.char]['up'] = current_time
-            
             msg = mido.Message('note_off', note=note, velocity=0, channel=0)
             outport.send(msg)
             print(f'Sent: {msg}')

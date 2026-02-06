@@ -1,10 +1,12 @@
 import { DrumPad } from "./components/Pad";
+import { Settings } from "./components/Settings";
 import "./styles/index.css";
 import { useState, useEffect } from "react";
 
 function App() {
   const [activePads, setActivePads] = useState<Map<number, number>>(new Map());
   const [alwaysOnTop, setAlwaysOnTop] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     const handlePadPress = (e: CustomEvent) => {
@@ -56,17 +58,23 @@ function App() {
 
   return (
     <div className="p-4 flex flex-col items-center">
-      <div className="flex gap-4 items-center mb-4">
-        <div className="text-gray-500 text-xs">Keyboard input only when focused</div>
+      <div className="flex gap-2 items-center mb-4">
+        <div className="text-gray-light text-xs">Keyboard input only when focused</div>
         <button
           onClick={toggleAlwaysOnTop}
           className={`px-3 py-1 rounded text-xs ${
             alwaysOnTop 
-              ? 'bg-blue-600 hover:bg-blue-700' 
-              : 'bg-gray-700 hover:bg-gray-600'
+              ? 'bg-blue hover:bg-blue-hover' 
+              : 'bg-gray-dark hover:bg-gray-medium'
           } text-white`}
         >
-          {alwaysOnTop ? '📌 Always on Top' : 'Pin Window'}
+          {alwaysOnTop ? '📌' : 'Pin'}
+        </button>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="px-3 py-1 rounded text-xs bg-gray-dark hover:bg-gray-medium text-white"
+        >
+          ⚙️ Settings
         </button>
       </div>
       <div className="grid grid-cols-4 gap-x-4 gap-y-1">
@@ -79,6 +87,7 @@ function App() {
           />
         ))}
       </div>
+      {showSettings && <Settings onClose={() => setShowSettings(false)} />}
     </div>
   );
 }

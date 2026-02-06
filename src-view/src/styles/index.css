@@ -6,17 +6,24 @@
     }
     html {
         color-scheme: dark;
+        overflow: hidden;
     }
     body {
         margin: 0;
         font-family: system-ui, -apple-system, sans-serif;
+        overflow: hidden;
     }
 }
 
 @theme {
     --color-default: rgb(32, 32, 32);
     --color-default-strong: rgb(17, 17, 17);
+    --color-gray-dark: rgb(55, 55, 55);
+    --color-gray-medium: rgb(75, 75, 75);
+    --color-gray-light: rgb(128, 128, 128);
+    --color-blue: rgb(59, 130, 246);
+    --color-blue-hover: rgb(37, 99, 235);
 
-    --color-red: rgb(181, 59, 59);
-    --color-red-gradient: rgb(190, 93, 92);
+    --color-red: rgb(181, 47, 47);
+    --color-red-gradient: rgb(188, 71, 69);
 }

@@ -1,20 +1,69 @@
 {
+  "velocity": 97,
   "pads": [
-    {"key": "a", "note": 61},
-    {"key": "s", "note": 63},
-    {"key": "d", "note": 66},
-    {"key": "w", "note": 68},
-    {"key": "x", "note": 60},
-    {"key": "z", "note": 62},
-    {"key": "j", "note": 64},
-    {"key": "v", "note": 65},
-    {"key": "c", "note": 67},
-    {"key": "k", "note": 69},
-    {"key": "m", "note": 71},
-    {"key": ",", "note": 72},
-    {"key": "u", "note": 70},
-    {"key": "i", "note": 73},
-    {"key": "o", "note": 74},
-    {"key": "p", "note": 76}
+    {
+      "key": "a",
+      "note": 61
+    },
+    {
+      "key": "s",
+      "note": 63
+    },
+    {
+      "key": "d",
+      "note": 66
+    },
+    {
+      "key": "w",
+      "note": 68
+    },
+    {
+      "key": "x",
+      "note": 60
+    },
+    {
+      "key": "z",
+      "note": 62
+    },
+    {
+      "key": "j",
+      "note": 64
+    },
+    {
+      "key": "v",
+      "note": 65
+    },
+    {
+      "key": "c",
+      "note": 67
+    },
+    {
+      "key": "k",
+      "note": 69
+    },
+    {
+      "key": "m",
+      "note": 71
+    },
+    {
+      "key": ",",
+      "note": 72
+    },
+    {
+      "key": "u",
+      "note": 70
+    },
+    {
+      "key": "i",
+      "note": 73
+    },
+    {
+      "key": "o",
+      "note": 74
+    },
+    {
+      "key": "p",
+      "note": 76
+    }
   ]
 }
